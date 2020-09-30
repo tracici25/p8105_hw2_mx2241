@@ -115,5 +115,60 @@ There are `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_nam
 
 ## Problem 3
 
+Import, clean the data and separate year, month, and date
+```{r}
+pols_df = read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(mon, c("year", "month", "day")) %>%
+  mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day)
+    )
+
+```
+
+Do some modification of the pols_df dataset:
+1. Replace month number with month name
+2. Replace `gop` and `dem` with `president`, and remove `prez_dem` and `prez_gop`
+3. Remove the day variable
+```{r}
+#Create a tibble of month
+month_df =
+  tibble(
+    month = 1:12,
+    month_name = month.name
+  )
+
+pols_modified = 
+  left_join(pols_df, month_df, by = "month") %>%  #month name replacement
+  mutate(president = case_when(prez_gop == 1 ~ 'republican', prez_dem == 1 ~ 'democrat')) %>% #replace gop and dem with president
+  select(-prez_dem,-prez_gop, -day) %>% #remove three variables
+  relocate(year, month)
+```
+
+Working on the second dataset snp.csv
+
+```{r}
+snp_df = read_csv("./data/fivethirtyeight_datasets/snp.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(date, c("month", "day", "year")) %>%
+  mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day)
+    )
+
+snp_modified = 
+  left_join(snp_df, month_df, by = "month") %>%  #month name replacement
+  relocate(year, month) %>% 
+  arrange(year, month)
+```
+
+
+
+
+
+
 
 
