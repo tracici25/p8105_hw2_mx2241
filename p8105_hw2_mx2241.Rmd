@@ -1,0 +1,13 @@
+---
+title: "Homework 2"
+author: Mufeng Xu
+output: github_document
+---
+
+To call out packages
+```{r setup}
+library(tidyverse)
+library(readxl) # read excel
+```
+
+## Problem 1
