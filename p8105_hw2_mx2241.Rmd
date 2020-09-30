@@ -89,10 +89,10 @@ transit_df =
 
 The dataset contains variables for line, station name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. After importing the dataset by `read_csv`, its variable names were cleaned by `janitor::clean_names`. Then, I selected the variables of interest by using `select`. Also, `recode` were used to switch the entry variable from character to logical. In the resulting dataset, there are `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. So far, the dataset is not tidy because the route variables are spreading across 11 columns. 
 
-`distinct` function was used to calculate the number of distinct stations. It was found that there are `r nrow(distinct(transit_df, line, station_name))` distinct stations. Out of these station, there are `r transit_df %>% filter(ada == TRUE) %>% distinct(line, station_name) %>% nrow()` stations that are ADA compliant. The proportion of station entrances/exits without vending allow entrance is `r (filter(transit_df, entry == "TRUE", vending == "NO") %>% nrow / filter(transit_df, vending == "NO") %>% nrow)*100`%.
+`distinct` function was used to calculate the number of distinct stations. It was found that there are `r transit_df %>% distinct(line, station_name) %>% nrow` distinct stations. Out of these station, there are `r transit_df %>% filter(ada == TRUE) %>% distinct(line, station_name) %>% nrow()` stations that are ADA compliant. The proportion of station entrances/exits without vending allow entrance is `r (transit_df %>% filter(entry == "TRUE", vending =="NO") %>% nrow / transit_df %>% filter(vending == "NO") %>% nrow())*100`%.
 
 
-To reformat the dataset further more
+Reformat the dataset further more
 ```{r}
 transit_tidy = transit_df %>% 
   mutate_at(
@@ -111,7 +111,9 @@ transit_tidy = transit_df %>%
 ```
 
 
+There are `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line) %>% nrow()` distinct stations that serve the A train. Of the stations that serve the A train, `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line, ada) %>% filter(ada == "TRUE") %>% nrow()` are ADA compliant.
 
+## Problem 3
 
 
 
