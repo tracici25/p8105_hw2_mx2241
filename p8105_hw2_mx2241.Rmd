@@ -200,6 +200,11 @@ merged_df =
 #(the pols file is the one we targeted on investigating)
 ```
 
+There are three datasets being analyzed in this question: `pols_month.csv`, `snp.csv`, `unemployment.csv`.
+* The pols file describes the number of politicians of each party through out the history, variables of interest containing: `r ls(pols_modified)`. It has `r nrow(pols_modified)` rows and `r ncol(pols_modified)` columns. The range of year is from `r min(pols_modified$year)` to `r max(pols_modified$year)`.
+* The snp file describes the Standard & Poor's stock market index at each given time, variables of interests containing `r ls(snp_modified)`. It has `r nrow(snp_modified)` rows and `r ncol(snp_modified)` columns. The range of year is from `r min(snp_modified$year)` to `r max(snp_modified$year)`.
+* The unemployment file describes the percentage of unemployment at each given time, the variables of interest containing `r ls(unemployment_df)`. It has `r nrow(unemployment_df)` rows and `r ncol(unemployment_df)` columns. The range of year is from `r min(unemployment_df$year)` to `r max(unemployment_df$year)`.
+* After merging and combining three datasets by time period, `merged_df` was created, which has variables of interests: `r ls(merged_df)`. It has `r nrow(merged_df)` rows and `r ncol(merged_df)` columns. The range of year is from `r min(merged_df$year)` to `r max(merged_df$year)`.
 
 
 
