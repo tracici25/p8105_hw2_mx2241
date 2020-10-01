@@ -83,16 +83,18 @@ transit_df =
   select(line, station_name, station_latitude, station_longitude, route1:route11, entry, vending, entrance_type, ada) %>% #select the variables of interest
   mutate(
     entry = recode(entry, 'YES' = TRUE, 'NO' = FALSE),
-    ) #change entry class from character to logical#clean names for column titles
+    ) #change entry class from character to logical
 ```
 
+* The dataset contains variables for line, station name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. After importing the dataset by `read_csv`, its variable names were cleaned by `janitor::clean_names`. Then, I selected the variables of interest by using `select`. Also, `recode` were used to switch the entry variable from character to logical. In the resulting dataset, there are `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. So far, the dataset is not tidy because the route variables are spreading across 11 columns. 
 
-The dataset contains variables for line, station name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. After importing the dataset by `read_csv`, its variable names were cleaned by `janitor::clean_names`. Then, I selected the variables of interest by using `select`. Also, `recode` were used to switch the entry variable from character to logical. In the resulting dataset, there are `r nrow(transit_df)` rows and `r ncol(transit_df)` columns. So far, the dataset is not tidy because the route variables are spreading across 11 columns. 
-
-`distinct` function was used to calculate the number of distinct stations. It was found that there are `r transit_df %>% distinct(line, station_name) %>% nrow` distinct stations. Out of these station, there are `r transit_df %>% filter(ada == TRUE) %>% distinct(line, station_name) %>% nrow()` stations that are ADA compliant. The proportion of station entrances/exits without vending allow entrance is `r (transit_df %>% filter(entry == "TRUE", vending =="NO") %>% nrow / transit_df %>% filter(vending == "NO") %>% nrow())*100`%.
+* `distinct` function was used to calculate the number of distinct stations. It was found that there are `r transit_df %>% distinct(line, station_name) %>% nrow` distinct stations.
+* Out of these station, there are `r transit_df %>% filter(ada == TRUE) %>% distinct(line, station_name) %>% nrow()` stations that are ADA compliant.
+* The proportion of station entrances/exits without vending allow entrance is `r (transit_df %>% filter(entry == "TRUE", vending =="NO") %>% nrow / transit_df %>% filter(vending == "NO") %>% nrow())*100`%.
 
 
 Reformat the dataset further more
+
 ```{r}
 transit_tidy = transit_df %>% 
   mutate_at(
@@ -111,11 +113,13 @@ transit_tidy = transit_df %>%
 ```
 
 
-There are `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line) %>% nrow()` distinct stations that serve the A train. Of the stations that serve the A train, `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line, ada) %>% filter(ada == "TRUE") %>% nrow()` are ADA compliant.
+* There are `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line) %>% nrow()` distinct stations that serve the A train. Of the stations that serve the A train, `r transit_tidy %>% filter(route_name == "A") %>% distinct(station_name, line, ada) %>% filter(ada == "TRUE") %>% nrow()` are ADA compliant.
+
 
 ## Problem 3
 
-Import, clean the data and separate year, month, and date
+Import, clean, and separate the data by year, month, and date
+
 ```{r}
 pols_df = read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>% 
   janitor::clean_names() %>% 
@@ -124,26 +128,26 @@ pols_df = read_csv("./data/fivethirtyeight_datasets/pols-month.csv") %>%
     year = as.integer(year),
     month = as.integer(month),
     day = as.integer(day)
-    )
+    ) #change class to integer
 
 ```
 
-Do some modification of the pols_df dataset:
+Do some modifications to the pols_df dataset:
 1. Replace month number with month name
 2. Replace `gop` and `dem` with `president`, and remove `prez_dem` and `prez_gop`
 3. Remove the day variable
+
 ```{r}
-#Create a tibble of month
 month_df =
   tibble(
     month = 1:12,
     month_name = month.name
-  )
+  ) # create a tibble of month
 
 pols_modified = 
-  left_join(pols_df, month_df, by = "month") %>%  #month name replacement
-  mutate(president = case_when(prez_gop == 1 ~ 'republican', prez_dem == 1 ~ 'democrat')) %>% #replace gop and dem with president
-  select(-prez_dem,-prez_gop, -day) %>% #remove three variables
+  left_join(pols_df, month_df, by = "month") %>%  # month name replacement
+  mutate(president = case_when(prez_gop == 1 ~ 'republican', prez_dem == 1 ~ 'democrat')) %>% # replace gop and dem with president
+  select(-prez_dem,-prez_gop, -day) %>% # remove three variables
   relocate(year, month_name, month) %>% 
   arrange(year, month)
 ```
@@ -170,7 +174,7 @@ snp_modified =
 Work on the unemployment data, and merged with the two datasets
 
 ```{r}
-# create another month tibble with lowercased abbreviation
+# create another month tibble with lowercased abbreviations
 month_abb_df =
   tibble(
     month = c("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"),
@@ -189,15 +193,15 @@ unemployment_df =
   left_join(month_abb_df, by = "month") %>% #merge two datasets by column "month"
   relocate(year, month_name, month) %>% 
   arrange(year, month)
-
 ```
 
 Now, it's time to merge the datasets
+
 ```{r}
 merged_df = 
   left_join(pols_modified, snp_modified, by = c("year", "month_name")) %>% 
   left_join(unemployment_df, by = c("year", "month_name"))
-#(the pols file is the one we targeted on investigating)
+# (the pols file is the one we targeted on investigating)
 ```
 
 There are three datasets being analyzed in this question: `pols_month.csv`, `snp.csv`, `unemployment.csv`.
@@ -205,7 +209,4 @@ There are three datasets being analyzed in this question: `pols_month.csv`, `snp
 * The snp file describes the Standard & Poor's stock market index at each given time, variables of interests containing `r ls(snp_modified)`. It has `r nrow(snp_modified)` rows and `r ncol(snp_modified)` columns. The range of year is from `r min(snp_modified$year)` to `r max(snp_modified$year)`.
 * The unemployment file describes the percentage of unemployment at each given time, the variables of interest containing `r ls(unemployment_df)`. It has `r nrow(unemployment_df)` rows and `r ncol(unemployment_df)` columns. The range of year is from `r min(unemployment_df$year)` to `r max(unemployment_df$year)`.
 * After merging and combining three datasets by time period, `merged_df` was created, which has variables of interests: `r ls(merged_df)`. It has `r nrow(merged_df)` rows and `r ncol(merged_df)` columns. The range of year is from `r min(merged_df$year)` to `r max(merged_df$year)`.
-
-
-
 
